@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+const config = require('../../config');
 
 dotenv.config();
 
@@ -20,8 +21,7 @@ const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => 
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    console.log(decoded);
+    const decoded = jwt.verify(token, config.jwt.tokenSecret as string);
     req.user = decoded;
     next();
   } catch (err) {

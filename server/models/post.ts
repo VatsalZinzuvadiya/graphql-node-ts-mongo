@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
+const config = require('../../config');
 
 export interface IPost extends Document {
   id: string;
@@ -13,4 +14,4 @@ const PostSchema: Schema = new Schema<IPost>({
   author: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
 
-export default mongoose.model<IPost>("Post", PostSchema);
+export default mongoose.model<IPost>(config.mongoDb.post, PostSchema);

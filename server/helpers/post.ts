@@ -33,6 +33,7 @@ export const getAllPosts = async (): Promise<IPost[]> => {
 export const getPostById = async (id: string): Promise<IPost | null> => {
   try {
     const post = await model.Post.findById(id).populate("author");
+    console.log(post)
     if (post) {
       return sanitizePost(post);
     }

@@ -1,10 +1,11 @@
 import { createClient } from 'redis';
 import dotenv from 'dotenv';
+const config = require('../../config');
 
 dotenv.config();
-const host = process.env.REDIS_HOST!;
-const port = process.env.REDIS_PORT!;
-const password = process.env.REDIS_PASSWORD!;
+const host = config.redis.host;
+const port = config.redis.port;
+const password = config.redis.password;
 const redisConfigObject = {
   socket: {
     host: host,

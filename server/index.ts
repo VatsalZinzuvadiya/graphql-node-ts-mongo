@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import http from "http";
 import { initSocket } from "./socket";
 import CustomErrors from "./Exceptions/CustomError";
+const config = require('../config');
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ const server = new ApolloServer({
 
 });
 
-const PORT = process.env.PORT || 4000;
+const PORT = config.server.port ;
 
 async function startServer() {
   try {

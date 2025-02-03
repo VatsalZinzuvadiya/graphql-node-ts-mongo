@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+const config = require('../../config');
 
 export interface IUser extends Document {
   username: string;
@@ -12,4 +13,4 @@ const UserSchema: Schema = new Schema<IUser>({
   password: { type: String, required: true },
 });
 
-export default mongoose.model<IUser>("User", UserSchema);
+export default mongoose.model<IUser>(config.mongoDb.user, UserSchema);

@@ -2,8 +2,8 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/user";
 import model from "../models";
-
 import dotenv from "dotenv";
+const config = require('../../config');
 
 dotenv.config();
 
@@ -42,6 +42,6 @@ export const loginUser = async (email: string, password: string): Promise<string
 };
 
 const generateToken = (userId: string) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET as string, { expiresIn: "1d" });
+  return jwt.sign({ userId }, config.jwt.tokenSecret as string, { expiresIn: config.jwt.tokenExpireTime });
 };
 
