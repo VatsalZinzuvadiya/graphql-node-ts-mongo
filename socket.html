@@ -39,12 +39,15 @@
     <input type="text" id="messageInput" placeholder="Type your message..." />
     <button id="sendMessageBtn">Send Message</button>
     <button id="broadcastMessageBtn">Broadcast Message</button>
+    <input type="text" id="roomInput" placeholder="Enter room name..." />
+    <button id="joinRoomBtn">Join Room</button>
+    <button id="leaveRoomBtn">Leave Room</button>
   </div>
   <script>
     const socket = io('http://localhost:4000', {
         query: { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmYjAyMDMyZWVjOWE5NmEzNjE0YTYiLCJpYXQiOjE3Mzg1MjEwNjgsImV4cCI6MTczODYwNzQ2OH0.f5XqQ7R8OionWi8PzUKu1VpOGUUZR3NdqHUbrFYumL4' } // Replace with actual JWT token
     });
-    
+
     socket.on('connect', () => {
       console.log('Connected to server via WebSocket');
     });
@@ -62,23 +65,22 @@
     });
 
     socket.on('postUpdated', (message) => {
-  const messageContainer = document.getElementById('messages');
-  
-  // Access the properties from the message object
-  const { title, content, author } = message;
+      const messageContainer = document.getElementById('messages');
+      
+      const { title, content, author } = message;
 
-  // Format the message as a string and insert it into the container
-  messageContainer.innerHTML += `
-    <div>
-      <strong>Post Updated:</strong><br>
-      <strong>Title:</strong> ${title}<br>
-      <strong>Content:</strong> ${content}<br>
-      <strong>Author:</strong> ${author} 
-    </div>
-  `;
-  
-  messageContainer.scrollTop = messageContainer.scrollHeight;
-});
+      messageContainer.innerHTML += `
+        <div>
+          <strong>Post Updated:</strong><br>
+          <strong>Title:</strong> ${title}<br>
+          <strong>Content:</strong> ${content}<br>
+          <strong>Author:</strong> ${author} 
+        </div>
+      `;
+      
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    });
+
     document.getElementById('sendMessageBtn').onclick = () => {
       const message = document.getElementById('messageInput').value;
       if (message.trim()) {
@@ -97,6 +99,30 @@
         const messageContainer = document.getElementById('messages');
         messageContainer.innerHTML += `<div>Broadcast: ${message}</div>`; 
         document.getElementById('messageInput').value = '';
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+    };
+
+    // Join a room
+    document.getElementById('joinRoomBtn').onclick = () => {
+      const room = document.getElementById('roomInput').value;
+      if (room.trim()) {
+        socket.emit('joinRoom', room);
+        const messageContainer = document.getElementById('messages');
+        messageContainer.innerHTML += `<div>Joined Room: ${room}</div>`;
+        document.getElementById('roomInput').value = '';
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+    };
+
+    // Leave a room
+    document.getElementById('leaveRoomBtn').onclick = () => {
+      const room = document.getElementById('roomInput').value;
+      if (room.trim()) {
+        socket.emit('leaveRoom', room);
+        const messageContainer = document.getElementById('messages');
+        messageContainer.innerHTML += `<div>Left Room: ${room}</div>`;
+        document.getElementById('roomInput').value = '';
         messageContainer.scrollTop = messageContainer.scrollHeight;
       }
     };

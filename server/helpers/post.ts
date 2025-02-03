@@ -74,7 +74,7 @@ export const deletePost = async (
   }
 };
 
-export const getFromCache = async (key: string): Promise<string | null> => {
+export const getDataFromRedis = async (key: string): Promise<string | null> => {
   try {
     const data = await client.get(key);
     return data;
@@ -84,7 +84,7 @@ export const getFromCache = async (key: string): Promise<string | null> => {
   }
 };
 
-export const setToCache = async (
+export const addDataInRedis = async (
   key: string,
   data: string,
   ttl: number = 60

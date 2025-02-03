@@ -35,7 +35,6 @@ export function initSocket(httpServer: any, pubsub: PubSub) {
 
   io.on("connection", (socket) => {
     console.log(`Socket connected: ${socket.id} - User:`, socket.data.user);
-
     if (socket.data.user && socket.data.user.id) {
       socket.join(socket.data.user.id.toString());
     }
@@ -48,6 +47,18 @@ export function initSocket(httpServer: any, pubsub: PubSub) {
 
     socket.on("broadcastMessage", (message: string) => {
       io.emit("receiveBroadcast", message);
+    });
+
+    socket.on("joinRoom", (roomId: string) => {
+      socket.join(roomId);
+      console.log(`User ${socket.data.user.userId} joined room ${roomId}`);
+      socket.to(roomId).emit("receiveMessage", `${socket.data.user.id} has joined the room.`);
+    });
+
+    socket.on("leaveRoom", (roomId: string) => {
+      socket.leave(roomId);
+      console.log(`User ${socket.data.user.userId} left room ${roomId}`);
+      socket.to(roomId).emit("receiveMessage", `${socket.data.user.id} has left the room.`);
     });
 
     socket.on("disconnect", () => {
