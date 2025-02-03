@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Chat & GraphQL</title>
+  <script src="https://cdn.jsdelivr.net/npm/@apollo/client@3.7.10/core/core.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/graphql-tag@2.12.5/graphql-tag.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.6.1/dist/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    #chatContainer {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    #messages {
+      height: 300px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div id="chatContainer">
+    <h1>Real-Time Chat & GraphQL</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type your message..." />
+    <button id="sendMessageBtn">Send Message</button>
+    <button id="broadcastMessageBtn">Broadcast Message</button>
+  </div>
+  <script>
+    const socket = io('http://localhost:4000', {
+        query: { token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmYjAyMDMyZWVjOWE5NmEzNjE0YTYiLCJpYXQiOjE3Mzg1MjEwNjgsImV4cCI6MTczODYwNzQ2OH0.f5XqQ7R8OionWi8PzUKu1VpOGUUZR3NdqHUbrFYumL4' } // Replace with actual JWT token
+    });
+    
+    socket.on('connect', () => {
+      console.log('Connected to server via WebSocket');
+    });
+
+    socket.on('receiveMessage', (message) => {
+      const messageContainer = document.getElementById('messages');
+      messageContainer.innerHTML += `<div>Private Message: ${message}</div>`;
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    });
+
+    socket.on('receiveBroadcast', (message) => {
+      const messageContainer = document.getElementById('messages');
+      messageContainer.innerHTML += `<div>Broadcast Message: ${message}</div>`;
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    });
+
+    socket.on('postUpdated', (message) => {
+  const messageContainer = document.getElementById('messages');
+  
+  // Access the properties from the message object
+  const { title, content, author } = message;
+
+  // Format the message as a string and insert it into the container
+  messageContainer.innerHTML += `
+    <div>
+      <strong>Post Updated:</strong><br>
+      <strong>Title:</strong> ${title}<br>
+      <strong>Content:</strong> ${content}<br>
+      <strong>Author:</strong> ${author} 
+    </div>
+  `;
+  
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+});
+    document.getElementById('sendMessageBtn').onclick = () => {
+      const message = document.getElementById('messageInput').value;
+      if (message.trim()) {
+        socket.emit('sendMessage', message);
+        const messageContainer = document.getElementById('messages');
+        messageContainer.innerHTML += `<div>You: ${message}</div>`;
+        document.getElementById('messageInput').value = '';
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+    };
+
+    document.getElementById('broadcastMessageBtn').onclick = () => {
+      const message = document.getElementById('messageInput').value;
+      if (message.trim()) {
+        socket.emit('broadcastMessage', message);
+        const messageContainer = document.getElementById('messages');
+        messageContainer.innerHTML += `<div>Broadcast: ${message}</div>`; 
+        document.getElementById('messageInput').value = '';
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+    };
+  </script>
+</body>
+</html>
