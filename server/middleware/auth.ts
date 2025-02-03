@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export interface AuthRequest extends Request {
-  user?: any;  // You can replace `any` with a custom type based on your JWT payload
+  user?: any;
 }
 
 const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -13,17 +13,16 @@ const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => 
     return next();
   }
 
-  const token = req.headers['authorization']?.split(' ')[1];  // "Bearer <token>"
+  const token = req.headers['authorization']?.split(' ')[1];
   
   if (!token) {
     return res.status(403).json({ message: 'Authorization token is required' });
   }
 
   try {
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
     console.log(decoded);
-    req.user = decoded;  // Add decoded user info to the request object
+    req.user = decoded;
     next();
   } catch (err) {
     return res.status(401).json({ message: 'Invalid or expired token' });

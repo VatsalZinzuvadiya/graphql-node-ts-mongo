@@ -1,5 +1,7 @@
 import mongoose, { Types } from "mongoose";
 import Post, { IPost } from "../models/post";
+import model from "../models";
+
 import client from "../config/redis";
 
 export const createPost = async (
@@ -8,7 +10,7 @@ export const createPost = async (
   author: string
 ): Promise<IPost> => {
   try {
-    const newPost = new Post({ title, content, author });
+    const newPost = new model.Post({ title, content, author });
     await newPost.save();
     return newPost;
   } catch (error) {
@@ -19,7 +21,7 @@ export const createPost = async (
 
 export const getAllPosts = async (): Promise<IPost[]> => {
   try {
-    const posts = await Post.find().populate("author");
+    const posts = await model.Post.find().populate("author");
     const sanitizedPosts: IPost[] = posts.map((post) => sanitizePost(post));
     return sanitizedPosts;
   } catch (error) {
@@ -30,7 +32,7 @@ export const getAllPosts = async (): Promise<IPost[]> => {
 
 export const getPostById = async (id: string): Promise<IPost | null> => {
   try {
-    const post = await Post.findById(id).populate("author");
+    const post = await model.Post.findById(id).populate("author");
     if (post) {
       return sanitizePost(post);
     }
@@ -48,7 +50,7 @@ export const updatePost = async (
   author: string
 ): Promise<IPost | null> => {
   try {
-    return await Post.findOneAndUpdate(
+    return await model.Post.findOneAndUpdate(
       { _id: id, author: new mongoose.Types.ObjectId(author) },
       { title, content },
       { new: true }
@@ -64,7 +66,7 @@ export const deletePost = async (
   author: string
 ): Promise<IPost | null> => {
   try {
-    return await Post.findOneAndDelete({
+    return await model.Post.findOneAndDelete({
       _id: id,
       author: new mongoose.Types.ObjectId(author),
     });

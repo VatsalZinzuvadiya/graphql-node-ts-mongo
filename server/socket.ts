@@ -14,7 +14,6 @@ export function initSocket(httpServer: any, pubsub: PubSub) {
 
   io.use((socket, next) => {
     const token = socket.handshake.query.token;
-
     if (!token) {
       return next(new Error("Authentication error: Token not provided"));
     }

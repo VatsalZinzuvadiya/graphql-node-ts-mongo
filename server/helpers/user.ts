@@ -1,13 +1,15 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/user";
+import model from "../models";
+
 import dotenv from "dotenv";
 
 dotenv.config();
 
 export const registerUser = async (username: string, email: string, password: string): Promise<IUser> => {
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await model.User.findOne({ email });
     if (existingUser) {
       throw new Error("Email is already in use.");
     }
@@ -23,7 +25,7 @@ export const registerUser = async (username: string, email: string, password: st
 
 export const loginUser = async (email: string, password: string): Promise<string> => {
   try {
-    const user = await User.findOne({ email });
+    const user = await model.User.findOne({ email });
     if (!user) {
       throw new Error("User not found.");
     }
