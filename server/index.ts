@@ -127,6 +127,7 @@ import authMiddleware from "./middleware/auth";
 import dotenv from "dotenv";
 import http from "http";
 import { initSocket } from "./socket";
+import CustomErrors from "./Exceptions/CustomError";
 
 dotenv.config();
 
@@ -143,6 +144,17 @@ const server = new ApolloServer({
   typeDefs: TypeDefs,
   resolvers: Resolvers,
   context: ({ req }): Context => ({ user: (req as any).user, pubsub }),
+  formatError: (err) => {
+    const customError = err.originalError as CustomErrors | undefined;
+    if (customError) {
+      return {
+        message: err.message,
+        code: customError.statusCode,
+      };
+    }
+    return err;
+  },
+
 });
 
 const PORT = process.env.PORT || 4000;

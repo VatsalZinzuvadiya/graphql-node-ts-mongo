@@ -3,7 +3,9 @@ import {
   getAllPosts as getAllPostsHelper, 
   getPostById as getPostByIdHelper, 
   updatePost as updatePostHelper, 
-  deletePost as deletePostHelper 
+  deletePost as deletePostHelper, 
+  setToCache,
+  getFromCache
 } from "../helpers/post";
 import { IPost } from "../models/post";
 
@@ -18,8 +20,16 @@ export const createPostService = async (title: string, content: string, author: 
 };
 
 export const getAllPostsService = async (): Promise<IPost[]> => {
+  const cacheKey = "all_posts";
   try {
+    const cachedData = await getFromCache(cacheKey);
+    if (cachedData) {
+      console.log("Cache hit for all posts");
+      return JSON.parse(cachedData);
+    }
     const posts = await getAllPostsHelper();
+    console.log("Cache miss for all posts");
+    await setToCache(cacheKey, JSON.stringify(posts));
     return posts;
   } catch (error) {
     console.error("Error in getAllPostsService:", error);
@@ -28,9 +38,20 @@ export const getAllPostsService = async (): Promise<IPost[]> => {
 };
 
 export const getPostByIdService = async (id: string): Promise<IPost | null> => {
+  const cacheKey = `post_${id}`;
   try {
+    const cachedData = await getFromCache(cacheKey);
+    if (cachedData) {
+      console.log(`Cache hit for post with ID: ${id}`);
+      return JSON.parse(cachedData);
+    }
     const post = await getPostByIdHelper(id);
-    return post;
+    if (post) {
+      console.log(`Cache miss for post with ID: ${id}`);
+      await setToCache(cacheKey, JSON.stringify(post));
+      return post;
+    }
+    return null;
   } catch (error) {
     console.error("Error in getPostByIdService:", error);
     throw error;
